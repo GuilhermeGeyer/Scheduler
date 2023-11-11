@@ -24,41 +24,34 @@ class Terminal():
         self.file_path = file_path
         self.file_name = file_name
         for i in self.data:
-            # item = self.data.get(i)
-            # item = float(item)
             self.data.update({i: float(self.data.get(i))})
-            print(f'{i}: {format_time(self.data.get(i))}')
 
     def idle(self):
         while True:
+            print('---------------')
+            for i in self.data:
+                print(f'{i}: {format_time(self.data.get(i))}')
+            print('---------------')
             input_key = input(
                 'key\n(exit to save and quit)' +
-                '\n(merge <old> <new> if misspelled): ')
-            if input_key == 'exit':
+                '\n(merge <old> <new> if misspelled): ').split(' ')
+            if input_key[0] == 'exit':
                 save_file(file_path, file_name, data)
                 return
-            # print(input_key[:6])
-            elif input_key[:6] == 'merge ':
-                inputs = input_key.split(' ')
-                # print(inputs)
-                self.data.update({inputs[2]: self.data.get(
-                    inputs[1]) + self.data.get(inputs[2])})
-                self.data.pop(inputs[1])
-            # input_value = input('value: ')
-            elif input_key in self.data:
-                current_time = self.data.get(input_key)
+            elif input_key[0] == 'merge':
+                self.data.update({input_key[2]: self.data.get(input_key[1]) +
+                                  self.data.get(input_key[2])})
+                self.data.pop(input_key[1])
+            elif input_key[0] in self.data:
+                current_time = self.data.get(input_key[0])
                 self.data.update(
-                    {input_key: current_time + time.time() - self.time})
+                    {input_key[0]: current_time + time.time() - self.time})
             else:
-                self.data.update({input_key: time.time() - self.time})
+                self.data.update({input_key[0]: time.time() - self.time})
             self.time = time.time()
-            for i in self.data:
-                # print(f'{i}: {self.data.get(i):.2f}')
-                print(f'{i}: {format_time(self.data.get(i))}')
 
 
 def format_time(seconds):
-    # seconds = float(seconds)
     minutes = 0
     hours = 0
     if seconds > 3600:
@@ -85,14 +78,12 @@ def load_file(file_path, file_name):
     finally:
         with open(f'{file_path}/{file_name}', 'r') as file:
             data = json.load(file)
-    # print(f'data: {data} {type(data)}')
     return data
 
 
 def save_file(file_path, file_name, data):
     with open(f'{file_path}/{file_name}', 'w') as file:
         json.dump(data, file)
-        # print(data)
     return data
 
 
@@ -107,7 +98,6 @@ def idle():
     while True:
         current_time = datetime.datetime.now()
         alarm(data, current_time)
-        # print(f'{current_time.hour}h{current_time.minute}')
         time.sleep(1)
 
 
@@ -119,8 +109,7 @@ def alarm(data, current_time):
             beep(1000, 200, 0.3)
 
 
-data = load_file(file_path, file_name)
-
-
-terminal = Terminal(data, file_path, file_name)
-terminal.idle()
+if __name__ == '__main__':
+    data = load_file(file_path, file_name)
+    terminal = Terminal(data, file_path, file_name)
+    terminal.idle()
