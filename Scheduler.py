@@ -21,33 +21,68 @@ class Terminal():
     def __init__(self, data, file_path, file_name):
         self.data = data
         self.time = time.time()
+        self.time_2 = self.time
         self.file_path = file_path
         self.file_name = file_name
         for i in self.data:
             self.data.update({i: float(self.data.get(i))})
 
+    def print_times(self):
+        print('---------------')
+        for i in self.data:
+            print(f'{i}: {format_time(self.data.get(i))}')
+        print('---------------')
+
     def idle(self):
+        started = False
         while True:
-            print('---------------')
-            for i in self.data:
-                print(f'{i}: {format_time(self.data.get(i))}')
-            print('---------------')
-            input_key = input(
-                'key\n(exit to save and quit)' +
-                '\n(merge <old> <new> if misspelled): ').split(' ')
-            if input_key[0] == 'exit':
+            self.print_times()
+            if not started:
+                input_key = input(
+                    'key\n(exit to save and quit)' +
+                    '\n(merge <old> <new> if misspelled): ').split(' ')
+            if len(input_key) == 1:
+                arguments = []
+                command = ''
+                if input_key[0] in ['exit', 'e']:
+                    command = input_key[0]
+                else:
+                    arguments = [input_key[0]]
+            else:
+                command = input_key[0]
+                arguments = input_key[1:]
+            if command in ['exit', 'e']:
+                if len(arguments) > 0:
+                    self.data.update(
+                        {arguments[0]:
+                         self.data.get(arguments[0]) +
+                         time.time() -
+                         self.time})
                 save_file(file_path, file_name, data)
                 return
-            elif input_key[0] == 'merge':
-                self.data.update({input_key[2]: self.data.get(input_key[1]) +
-                                  self.data.get(input_key[2])})
-                self.data.pop(input_key[1])
-            elif input_key[0] in self.data:
-                current_time = self.data.get(input_key[0])
+            elif command in ['merge', 'm']:
+                self.data.update({arguments[1]: self.data.get(arguments[0]) +
+                                  self.data.get(arguments[1])})
+                self.data.pop(arguments[0])
+            elif arguments[0] in self.data:
+                current_time = self.data.get(arguments[0])
                 self.data.update(
-                    {input_key[0]: current_time + time.time() - self.time})
+                    {arguments[0]: current_time + time.time() - self.time})
+            elif command in ['start', 's']:
+                self.data.update(
+                    {arguments[0]: current_time + time.time() - self.time})
+                started = True
+            elif command in ['delete', 'd']:
+                for i in arguments:
+                    self.data.pop(i)
             else:
-                self.data.update({input_key[0]: time.time() - self.time})
+                self.data.update({arguments[0]: time.time() - self.time})
+            if started:
+                self.data.update(
+                    {arguments[0]: current_time + time.time() - self.time})
+                if time.time() - self.time_2 > 5:
+                    self.time_2 += 5
+                    self.print_times()
             self.time = time.time()
 
 
