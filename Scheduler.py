@@ -47,7 +47,7 @@ class Terminal():
             arguments = []
             command = ''
 
-            if input_key[0] in ['exit', 'e']:
+            if input_key[0] in ['exit', 'e', 'clear']:
                 command = input_key[0]
                 if len(input_key) == 2:
                     arguments = [input_key[1]]
@@ -62,7 +62,6 @@ class Terminal():
             except IndexError:
                 pass
             if command in ['exit', 'e']:
-                # print(arguments, len(arguments))
                 if len(arguments) > 0:
                     self.data.update(
                         {arguments[0]:
@@ -71,6 +70,11 @@ class Terminal():
                          self.time})
                 save_file(file_path, file_name, data)
                 return
+
+            if command in ['clear']:
+                clear_file(file_path, file_name)
+                load_file(file_path, file_name)
+                self.data.clear()
             elif command in ['merge', 'm']:
                 self.data.update({arguments[1]: self.data.get(arguments[0]) +
                                   self.data.get(arguments[1])})
@@ -87,12 +91,14 @@ class Terminal():
                     {arguments[0]: current_time + time.time() - self.time})
             else:
                 self.data.update({arguments[0]: time.time() - self.time})
+
             if started:
                 self.data.update(
                     {arguments[0]: current_time + time.time() - self.time})
                 if time.time() - self.time_2 > 5:
                     self.time_2 += 5
                     self.print_times()
+            save_file(file_path, file_name, data)
             self.time = time.time()
 
 
