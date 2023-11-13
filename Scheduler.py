@@ -33,6 +33,9 @@ class Terminal():
             print(f'{i}: {format_time(self.data.get(i))}')
         print('---------------')
 
+    def update(self, arg_1, arg_2):
+        pass
+
     def idle(self):
         started = False
         while True:
@@ -41,17 +44,25 @@ class Terminal():
                 input_key = input(
                     'key\n(exit to save and quit)' +
                     '\n(merge <old> <new> if misspelled): ').split(' ')
-            if len(input_key) == 1:
-                arguments = []
-                command = ''
-                if input_key[0] in ['exit', 'e']:
-                    command = input_key[0]
-                else:
-                    arguments = [input_key[0]]
+            arguments = []
+            command = ''
+
+            if input_key[0] in ['exit', 'e']:
+                command = input_key[0]
+                if len(input_key) == 2:
+                    arguments = [input_key[1]]
+            elif len(input_key) == 1:
+                arguments = [input_key[0]]
             else:
                 command = input_key[0]
                 arguments = input_key[1:]
+
+            try:
+                current_time = self.data.get(arguments[0])
+            except IndexError:
+                pass
             if command in ['exit', 'e']:
+                # print(arguments, len(arguments))
                 if len(arguments) > 0:
                     self.data.update(
                         {arguments[0]:
@@ -64,10 +75,6 @@ class Terminal():
                 self.data.update({arguments[1]: self.data.get(arguments[0]) +
                                   self.data.get(arguments[1])})
                 self.data.pop(arguments[0])
-            elif arguments[0] in self.data:
-                current_time = self.data.get(arguments[0])
-                self.data.update(
-                    {arguments[0]: current_time + time.time() - self.time})
             elif command in ['start', 's']:
                 self.data.update(
                     {arguments[0]: current_time + time.time() - self.time})
@@ -75,6 +82,9 @@ class Terminal():
             elif command in ['delete', 'd']:
                 for i in arguments:
                     self.data.pop(i)
+            elif arguments[0] in self.data:
+                self.data.update(
+                    {arguments[0]: current_time + time.time() - self.time})
             else:
                 self.data.update({arguments[0]: time.time() - self.time})
             if started:
