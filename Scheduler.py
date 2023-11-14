@@ -36,6 +36,14 @@ class Terminal():
     def update(self, arg_1, arg_2):
         pass
 
+    def increment(self, argument):
+        argument = self.data.get(argument)
+        if argument is None:
+            value = 0
+        else:
+            value = argument
+        return value
+
     def idle(self):
         started = False
         while True:
@@ -57,15 +65,13 @@ class Terminal():
                 command = input_key[0]
                 arguments = input_key[1:]
 
-            try:
-                current_time = self.data.get(arguments[0])
-            except IndexError:
-                pass
+            current_value = self.increment(arguments[0])
+
             if command in ['exit', 'e']:
                 if len(arguments) > 0:
                     self.data.update(
                         {arguments[0]:
-                         self.data.get(arguments[0]) +
+                         current_value +
                          time.time() -
                          self.time})
                 save_file(file_path, file_name, data)
@@ -76,25 +82,25 @@ class Terminal():
                 load_file(file_path, file_name)
                 self.data.clear()
             elif command in ['merge', 'm']:
-                self.data.update({arguments[1]: self.data.get(arguments[0]) +
+                self.data.update({arguments[1]: current_value +
                                   self.data.get(arguments[1])})
                 self.data.pop(arguments[0])
             elif command in ['start', 's']:
                 self.data.update(
-                    {arguments[0]: current_time + time.time() - self.time})
+                    {arguments[0]: current_value + time.time() - self.time})
                 started = True
             elif command in ['delete', 'd']:
                 for i in arguments:
                     self.data.pop(i)
             elif arguments[0] in self.data:
                 self.data.update(
-                    {arguments[0]: current_time + time.time() - self.time})
+                    {arguments[0]: current_value + time.time() - self.time})
             else:
                 self.data.update({arguments[0]: time.time() - self.time})
 
             if started:
                 self.data.update(
-                    {arguments[0]: current_time + time.time() - self.time})
+                    {arguments[0]: current_value + time.time() - self.time})
                 if time.time() - self.time_2 > 5:
                     self.time_2 += 5
                     self.print_times()
