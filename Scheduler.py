@@ -65,7 +65,11 @@ class Terminal():
                 command = input_key[0]
                 arguments = input_key[1:]
 
-            current_value = self.increment(arguments[0])
+            if len(arguments):
+                current_value = self.increment(arguments[0])
+            for i in range(len(arguments)):
+                if not self.increment(arguments[i]):
+                    self.data.update({arguments[i]: 0})
 
             if command in ['exit', 'e']:
                 if len(arguments) > 0:
