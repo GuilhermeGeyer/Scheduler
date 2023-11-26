@@ -107,9 +107,8 @@ class Terminal():
                     {arguments[0]: current_value + time.time() - self.time})
                 if time.time() - self.time_2 > 5:
                     self.time_2 += 5
-                    self.print_times()
-            save_file(file_path, file_name, data)
             self.time = time.time()
+            save_file(file_path, file_name, data)
 
 
 def format_time(seconds):
@@ -171,6 +170,9 @@ def alarm(data, current_time):
 
 
 if __name__ == '__main__':
-    data = load_file(file_path, file_name)
+    try:
+        data = load_file(file_path, file_name)
+    except:
+        data = {}
     terminal = Terminal(data, file_path, file_name)
     terminal.idle()
